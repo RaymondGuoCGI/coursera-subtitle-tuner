@@ -232,6 +232,42 @@ video::cue {
   text-shadow: none !important;
 }
 
+.st-force-controls.st-controls-hidden .rc-VideoPlayerControlsContainer,
+.st-force-controls.st-controls-hidden .rc-VideoPlayerControls,
+.st-force-controls.st-controls-hidden .rc-VideoPlayer-control-bar,
+.st-force-controls.st-controls-hidden .vjs-control-bar,
+.st-force-controls.st-controls-hidden [class*="control-bar"],
+.st-force-controls.st-controls-hidden [class*="progress-bar"],
+.st-force-controls.st-controls-hidden [data-test*="controls"],
+.st-force-controls.st-controls-hidden [data-testid*="controls"],
+.st-force-controls.st-controls-hidden [data-testid*="progress"] {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translateY(8px) !important;
+  transition: none !important;
+  animation: none !important;
+}
+
+.st-force-controls.st-controls-visible .rc-VideoPlayerControlsContainer,
+.st-force-controls.st-controls-visible .rc-VideoPlayerControls,
+.st-force-controls.st-controls-visible .rc-VideoPlayer-control-bar,
+.st-force-controls.st-controls-visible .vjs-control-bar,
+.st-force-controls.st-controls-visible [class*="control-bar"],
+.st-force-controls.st-controls-visible [class*="progress-bar"],
+.st-force-controls.st-controls-visible [data-test*="controls"],
+.st-force-controls.st-controls-visible [data-testid*="controls"],
+.st-force-controls.st-controls-visible [data-testid*="progress"] {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transform: translateY(0) !important;
+  transition: none !important;
+  animation: none !important;
+}
+
 /* === 按钮样式 === */
 .st-cc-btn {
   display: inline-flex;

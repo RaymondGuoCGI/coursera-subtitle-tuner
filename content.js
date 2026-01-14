@@ -390,6 +390,46 @@ function applyContainerStyles(container) {
   container.style.setProperty('margin', '0', 'important');
 }
 
+function getControlsElements(playerRoot) {
+  if (!playerRoot) return [];
+  const selectors = [
+    ".rc-VideoPlayerControlsContainer",
+    ".rc-VideoPlayerControls",
+    ".rc-VideoPlayer-control-bar",
+    ".vjs-control-bar",
+    "[class*=\"control-bar\"]",
+    "[class*=\"progress-bar\"]",
+    "[data-test*=\"controls\"]",
+    "[data-testid*=\"controls\"]",
+    "[data-testid*=\"progress\"]"
+  ];
+  const elements = new Set();
+  selectors.forEach((sel) => {
+    playerRoot.querySelectorAll(sel).forEach((el) => elements.add(el));
+  });
+  return Array.from(elements).filter((el) => {
+    if (el.querySelector("video")) return false;
+    const hasButton = el.querySelector("button") || el.matches("button");
+    const hasSlider = el.querySelector("input[type=\"range\"], [role=\"slider\"], [class*=\"progress-bar\"]");
+    const hasMediaLabel = el.querySelector(
+      "[aria-label*=\"Play\"], [aria-label*=\"Pause\"], [aria-label*=\"Volume\"], [aria-label*=\"Mute\"], [aria-label*=\"Settings\"], [aria-label*=\"Fullscreen\"]"
+    );
+    return !!(hasButton || hasSlider || hasMediaLabel);
+  });
+}
+
+function forceControlsVisibility(playerRoot, visible) {
+  const elements = getControlsElements(playerRoot);
+  elements.forEach((el) => {
+    el.style.setProperty("display", visible ? "block" : "none", "important");
+    el.style.setProperty("opacity", visible ? "1" : "0", "important");
+    el.style.setProperty("visibility", visible ? "visible" : "hidden", "important");
+    el.style.setProperty("pointer-events", visible ? "auto" : "none", "important");
+    el.style.setProperty("transition", "none", "important");
+    el.style.setProperty("animation", "none", "important");
+  });
+}
+
 function ensureCueLayer(playerRoot) {
   let layer = playerRoot.querySelector(".st-cue-layer");
   if (!layer) {
@@ -574,11 +614,23 @@ async function boot() {
     const video = playerRoot.querySelector("video") || document.querySelector("video");
     if (!playerRoot.__stHoverBound) {
       playerRoot.__stHoverBound = true;
+      playerRoot.classList.add("st-force-controls");
+      const hoveringNow = playerRoot.matches(":hover");
+      playerRoot.classList.toggle("st-hover-controls", hoveringNow);
+      playerRoot.classList.toggle("st-controls-visible", hoveringNow);
+      playerRoot.classList.toggle("st-controls-hidden", !hoveringNow);
+      forceControlsVisibility(playerRoot, hoveringNow);
       playerRoot.addEventListener("mouseenter", () => {
         playerRoot.classList.add("st-hover-controls");
+        playerRoot.classList.add("st-controls-visible");
+        playerRoot.classList.remove("st-controls-hidden");
+        forceControlsVisibility(playerRoot, true);
       });
       playerRoot.addEventListener("mouseleave", () => {
         playerRoot.classList.remove("st-hover-controls");
+        playerRoot.classList.add("st-controls-hidden");
+        playerRoot.classList.remove("st-controls-visible");
+        forceControlsVisibility(playerRoot, false);
       });
     }
 
