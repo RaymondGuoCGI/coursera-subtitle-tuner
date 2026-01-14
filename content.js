@@ -54,7 +54,7 @@ function applyState(state, playerRoot) {
     // 更新所有动态创建的背景层
     const bgLayers = playerRoot.querySelectorAll('.st-bg-layer');
     bgLayers.forEach(bg => {
-      bg.style.background = rgba(state.bgColor, state.bgOpacity / 100);
+      bg.style.background = "transparent";
     });
   }
 }
@@ -217,6 +217,7 @@ function wrapMultilineSubtitles(playerRoot) {
         wrapper.querySelectorAll(':scope > *:not(.st-bg-layer)').forEach(line => {
           applyLineStyles(line);
         });
+        requestAnimationFrame(() => renderUnifiedBackground(wrapper));
       }
       return;
     }
@@ -252,6 +253,7 @@ function wrapMultilineSubtitles(playerRoot) {
       container.appendChild(wrapper);
       container.classList.add('st-wrapped');
       applyContainerStyles(container);
+      requestAnimationFrame(() => renderUnifiedBackground(wrapper));
     }
   });
 }
@@ -269,6 +271,88 @@ function applyWrapperStyles(wrapper) {
   wrapper.style.setProperty('box-shadow', 'none', 'important');
 }
 
+function renderUnifiedBackground(wrapper) {
+  if (!wrapper) return;
+  const bg = wrapper.querySelector('.st-bg-layer');
+  if (!bg) return;
+
+  const wrapperRect = wrapper.getBoundingClientRect();
+  if (wrapperRect.width <= 0 || wrapperRect.height <= 0) return;
+
+  let svg = bg.querySelector('svg.st-bg-svg');
+  if (!svg) {
+    svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.classList.add("st-bg-svg");
+    bg.appendChild(svg);
+  }
+
+  svg.setAttribute("width", `${wrapperRect.width}`);
+  svg.setAttribute("height", `${wrapperRect.height}`);
+  svg.setAttribute("viewBox", `0 0 ${wrapperRect.width} ${wrapperRect.height}`);
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+  const cs = window.getComputedStyle(wrapper);
+  const padLeft = parseFloat(cs.paddingLeft) || 0;
+  const padRight = parseFloat(cs.paddingRight) || 0;
+  const padTop = parseFloat(cs.paddingTop) || 0;
+  const padBottom = parseFloat(cs.paddingBottom) || 0;
+  const fontSize = parseFloat(cs.fontSize) || 16;
+  const radius = Math.max(4, Math.round(fontSize * 0.2));
+  const overlap = Math.min(Math.max(padTop, padBottom), 8);
+
+  let lineEls = Array.from(wrapper.querySelectorAll('.st-cue-line'));
+  if (!lineEls.length) {
+    lineEls = Array.from(wrapper.children).filter(child => {
+      return !child.classList.contains('st-bg-layer');
+    });
+  }
+
+  const maskId = wrapper.__stMaskId || `st-mask-${Math.random().toString(36).slice(2, 10)}`;
+  wrapper.__stMaskId = maskId;
+
+  const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+  const mask = document.createElementNS("http://www.w3.org/2000/svg", "mask");
+  mask.setAttribute("id", maskId);
+  mask.setAttribute("maskUnits", "userSpaceOnUse");
+  defs.appendChild(mask);
+  svg.appendChild(defs);
+
+  lineEls.forEach(line => {
+    if (!line.textContent.trim()) return;
+    const rect = line.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return;
+
+    let x = rect.left - wrapperRect.left - padLeft;
+    let y = rect.top - wrapperRect.top - padTop - overlap;
+    let w = rect.width + padLeft + padRight;
+    let h = rect.height + padTop + padBottom + overlap * 2;
+
+    x = Math.max(0, x);
+    y = Math.max(0, y);
+    w = Math.min(wrapperRect.width - x, w);
+    h = Math.min(wrapperRect.height - y, h);
+
+    const r = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    r.setAttribute("x", `${x}`);
+    r.setAttribute("y", `${y}`);
+    r.setAttribute("width", `${w}`);
+    r.setAttribute("height", `${h}`);
+    r.setAttribute("rx", `${radius}`);
+    r.setAttribute("ry", `${radius}`);
+    r.setAttribute("fill", "#fff");
+    mask.appendChild(r);
+  });
+
+  const fillRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  fillRect.setAttribute("x", "0");
+  fillRect.setAttribute("y", "0");
+  fillRect.setAttribute("width", `${wrapperRect.width}`);
+  fillRect.setAttribute("height", `${wrapperRect.height}`);
+  fillRect.setAttribute("mask", `url(#${maskId})`);
+  fillRect.classList.add("st-bg-fill");
+  svg.appendChild(fillRect);
+}
+
 // 强制应用背景层样式
 function applyBgStyles(bg) {
   bg.style.setProperty('position', 'absolute', 'important');
@@ -278,8 +362,8 @@ function applyBgStyles(bg) {
   bg.style.setProperty('bottom', '0', 'important');
   bg.style.setProperty('width', '100%', 'important');
   bg.style.setProperty('height', '100%', 'important');
-  bg.style.setProperty('background', rgba(currentState.bgColor, currentState.bgOpacity / 100), 'important');
-  bg.style.setProperty('background-color', rgba(currentState.bgColor, currentState.bgOpacity / 100), 'important');
+  bg.style.setProperty('background', 'transparent', 'important');
+  bg.style.setProperty('background-color', 'transparent', 'important');
   bg.style.setProperty('border-radius', '0.3em', 'important');
   bg.style.setProperty('z-index', '-1', 'important');
   bg.style.setProperty('pointer-events', 'none', 'important');
@@ -291,7 +375,9 @@ function applyLineStyles(line) {
   line.style.setProperty('background', 'transparent', 'important');
   line.style.setProperty('background-color', 'transparent', 'important');
   line.style.setProperty('padding', '0', 'important');
-  line.style.setProperty('margin', '0', 'important');
+  line.style.setProperty('margin', '0 auto', 'important');
+  line.style.setProperty('width', 'fit-content', 'important');
+  line.style.setProperty('max-width', '100%', 'important');
   line.style.setProperty('border', 'none', 'important');
   line.style.setProperty('box-shadow', 'none', 'important');
 }
@@ -351,15 +437,28 @@ function updateCustomCues(video, playerRoot) {
   });
 
   const text = texts.join("\n").trim();
-  const { layer, text: textEl } = ensureCueLayer(playerRoot);
+  const { layer, wrapper, text: textEl } = ensureCueLayer(playerRoot);
 
   if (!text) {
     layer.style.display = "none";
     return;
   }
 
-  textEl.textContent = text;
+  textEl.textContent = "";
+  const lines = text.split(/\r?\n/).filter(line => line.trim().length > 0);
+  if (!lines.length) {
+    layer.style.display = "none";
+    return;
+  }
+  lines.forEach(lineText => {
+    const line = document.createElement("div");
+    line.className = "st-cue-line";
+    line.textContent = lineText;
+    applyLineStyles(line);
+    textEl.appendChild(line);
+  });
   layer.style.display = "block";
+  requestAnimationFrame(() => renderUnifiedBackground(wrapper));
 }
 
 function attachCustomCueHandlers(video, playerRoot) {

@@ -108,6 +108,16 @@ div.st-bg-layer,
   padding: 0 !important;
 }
 
+.st-bg-layer .st-bg-svg {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.st-bg-layer .st-bg-svg .st-bg-fill {
+  fill: var(--st-bg) !important;
+}
+
 /* 多行字幕的每一行 - 超高优先级 */
 .st-multiline-wrapper > *:not(.st-bg-layer),
 .st-multiline-wrapper > div:not(.st-bg-layer),
@@ -121,6 +131,19 @@ div.st-bg-layer,
   line-height: var(--st-line-height) !important;
   border: none !important;
   box-shadow: none !important;
+}
+
+.st-cue-text {
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.st-cue-line {
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
 }
 
 /* 彻底禁用多行字幕内部元素的伪元素 */
