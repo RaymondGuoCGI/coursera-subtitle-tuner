@@ -19,6 +19,9 @@ Coursera 字幕调节器 - MVP
 - Coursera 的 DOM 经常变化。如果按钮未出现，请在视频可见时刷新页面
 - 如需支持更多网站，在 manifest 的 host_permissions/matches 中添加，并在 content.js 中添加站点适配器
 
+隐私政策：
+见 `PRIVACY.md`。
+
 ## English
 A Coursera-focused subtitle tuner that unifies multi-line captions and improves subtitle positioning behavior.
 
@@ -37,3 +40,6 @@ Test:
 Notes:
 - Coursera DOM changes frequently. If button doesn't appear, refresh when video is visible.
 - To support more websites, add them to manifest host_permissions/matches and add a site adapter in content.js.
+
+Privacy policy:
+See `PRIVACY.md`.
