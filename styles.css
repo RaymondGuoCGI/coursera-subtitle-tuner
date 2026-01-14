@@ -1,7 +1,7 @@
 /* === 字幕核心样式 === */
 :root {
   --st-font-size: 22px;
-  --st-line-height: 1.35;
+  --st-line-height: 1.2;
   --st-color: #ffffff;
   --st-bg: rgba(0, 0, 0, 0.65);
   --st-shadow: 0 2px 6px rgba(0,0,0,0.6);
@@ -79,7 +79,7 @@ div.st-multiline-wrapper,
 [class*="caption"] .st-multiline-wrapper {
   position: relative !important;
   display: inline-block !important;
-  padding: 0.2em 0.5em !important;
+  padding: 0.1em 0.5em !important;
   background: transparent !important;
   background-color: transparent !important;
   max-width: 90% !important;
@@ -236,17 +236,24 @@ video::cue {
 .st-force-controls.st-controls-hidden .rc-VideoPlayerControls,
 .st-force-controls.st-controls-hidden .rc-VideoPlayer-control-bar,
 .st-force-controls.st-controls-hidden .vjs-control-bar,
-.st-force-controls.st-controls-hidden [class*="control-bar"],
-.st-force-controls.st-controls-hidden [class*="progress-bar"],
-.st-force-controls.st-controls-hidden [data-test*="controls"],
-.st-force-controls.st-controls-hidden [data-testid*="controls"],
-.st-force-controls.st-controls-hidden [data-testid*="progress"] {
+.st-force-controls.st-controls-hidden [class*="control-bar" i],
+.st-force-controls.st-controls-hidden [class*="controls-container" i],
+.st-force-controls.st-controls-hidden [class*="progress-bar" i],
+.st-force-controls.st-controls-hidden [class*="playback-bar" i],
+.st-force-controls.st-controls-hidden [class*="VideoProgress" i],
+.st-force-controls.st-controls-hidden [class*="Scrubber" i],
+.st-force-controls.st-controls-hidden [class*="ControlBar" i],
+.st-force-controls.st-controls-hidden [class*="VideoControls" i],
+.st-force-controls.st-controls-hidden [data-test*="controls" i],
+.st-force-controls.st-controls-hidden [data-testid*="controls" i],
+.st-force-controls.st-controls-hidden [data-testid*="progress" i] {
   display: none !important;
   opacity: 0 !important;
   visibility: hidden !important;
   pointer-events: none !important;
   transform: translateY(8px) !important;
   transition: none !important;
+  transition-delay: 0s !important;
   animation: none !important;
 }
 
@@ -254,17 +261,24 @@ video::cue {
 .st-force-controls.st-controls-visible .rc-VideoPlayerControls,
 .st-force-controls.st-controls-visible .rc-VideoPlayer-control-bar,
 .st-force-controls.st-controls-visible .vjs-control-bar,
-.st-force-controls.st-controls-visible [class*="control-bar"],
-.st-force-controls.st-controls-visible [class*="progress-bar"],
-.st-force-controls.st-controls-visible [data-test*="controls"],
-.st-force-controls.st-controls-visible [data-testid*="controls"],
-.st-force-controls.st-controls-visible [data-testid*="progress"] {
+.st-force-controls.st-controls-visible [class*="control-bar" i],
+.st-force-controls.st-controls-visible [class*="controls-container" i],
+.st-force-controls.st-controls-visible [class*="progress-bar" i],
+.st-force-controls.st-controls-visible [class*="playback-bar" i],
+.st-force-controls.st-controls-visible [class*="VideoProgress" i],
+.st-force-controls.st-controls-visible [class*="Scrubber" i],
+.st-force-controls.st-controls-visible [class*="ControlBar" i],
+.st-force-controls.st-controls-visible [class*="VideoControls" i],
+.st-force-controls.st-controls-visible [data-test*="controls" i],
+.st-force-controls.st-controls-visible [data-testid*="controls" i],
+.st-force-controls.st-controls-visible [data-testid*="progress" i] {
   display: block !important;
   opacity: 1 !important;
   visibility: visible !important;
   pointer-events: auto !important;
   transform: translateY(0) !important;
   transition: none !important;
+  transition-delay: 0s !important;
   animation: none !important;
 }
 

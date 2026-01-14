@@ -3,7 +3,7 @@
 const DEFAULTS = {
   pos: "bottom",
   posOffset: 0,       
-  lineHeight: 135,
+  lineHeight: 120,
   fontSize: 24,
   textColor: "#ffffff",
   bgColor: "#000000",
@@ -262,7 +262,7 @@ function wrapMultilineSubtitles(playerRoot) {
 function applyWrapperStyles(wrapper) {
   wrapper.style.setProperty('position', 'relative', 'important');
   wrapper.style.setProperty('display', 'inline-block', 'important');
-  wrapper.style.setProperty('padding', '0.2em 0.5em', 'important');
+  wrapper.style.setProperty('padding', '0.1em 0.5em', 'important');
   wrapper.style.setProperty('background', 'transparent', 'important');
   wrapper.style.setProperty('background-color', 'transparent', 'important');
   wrapper.style.setProperty('max-width', '90%', 'important');
@@ -298,7 +298,7 @@ function renderUnifiedBackground(wrapper) {
   const padBottom = parseFloat(cs.paddingBottom) || 0;
   const fontSize = parseFloat(cs.fontSize) || 16;
   const radius = Math.max(4, Math.round(fontSize * 0.2));
-  const overlap = Math.min(Math.max(padTop, padBottom), 8);
+  const overlap = Math.min(Math.max(padTop, padBottom), 4); // 恢复之前的重叠值
 
   let lineEls = Array.from(wrapper.querySelectorAll('.st-cue-line'));
   if (!lineEls.length) {
@@ -397,11 +397,19 @@ function getControlsElements(playerRoot) {
     ".rc-VideoPlayerControls",
     ".rc-VideoPlayer-control-bar",
     ".vjs-control-bar",
-    "[class*=\"control-bar\"]",
-    "[class*=\"progress-bar\"]",
-    "[data-test*=\"controls\"]",
-    "[data-testid*=\"controls\"]",
-    "[data-testid*=\"progress\"]"
+    "[class*=\"control-bar\" i]",
+    "[class*=\"controls-container\" i]",
+    "[class*=\"progress-bar\" i]",
+    "[class*=\"playback-bar\" i]",
+    "[class*=\"VideoProgress\" i]",
+    "[class*=\"Scrubber\" i]",
+    "[class*=\"ControlBar\" i]",
+    "[class*=\"VideoControls\" i]",
+    "[data-test*=\"controls\" i]",,
+    "[data-testid*=\"controls\" i]",
+    "[data-testid*=\"progress\" i]",
+    ".video-controls",
+    ".video-control-bar"
   ];
   const elements = new Set();
   selectors.forEach((sel) => {
@@ -409,12 +417,18 @@ function getControlsElements(playerRoot) {
   });
   return Array.from(elements).filter((el) => {
     if (el.querySelector("video")) return false;
+    // 检查是否包含常见的交互元素或具有控制条特征
     const hasButton = el.querySelector("button") || el.matches("button");
-    const hasSlider = el.querySelector("input[type=\"range\"], [role=\"slider\"], [class*=\"progress-bar\"]");
+    const hasSlider = el.querySelector("input[type=\"range\"], [role=\"slider\"], [class*=\"progress\" i], [class*=\"scrubber\" i]");
     const hasMediaLabel = el.querySelector(
-      "[aria-label*=\"Play\"], [aria-label*=\"Pause\"], [aria-label*=\"Volume\"], [aria-label*=\"Mute\"], [aria-label*=\"Settings\"], [aria-label*=\"Fullscreen\"]"
+      "[aria-label*=\"Play\" i], [aria-label*=\"Pause\" i], [aria-label*=\"Volume\" i], [aria-label*=\"Mute\" i], [aria-label*=\"Settings\" i], [aria-label*=\"Fullscreen\" i]"
     );
-    return !!(hasButton || hasSlider || hasMediaLabel);
+    // 或者是其中一个已知的主容器
+    const isMainContainer = el.classList.contains("rc-VideoPlayerControlsContainer") || 
+                            el.classList.contains("rc-VideoPlayerControls") ||
+                            el.classList.contains("vjs-control-bar");
+
+    return !!(hasButton || hasSlider || hasMediaLabel || isMainContainer);
   });
 }
 
