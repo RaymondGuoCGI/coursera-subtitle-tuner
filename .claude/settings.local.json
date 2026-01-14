@@ -1,0 +1,10 @@
+﻿{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(node:*)",
+      "Bash(ls:*)",
+      "Bash(start \"\" \"G:\\\\Chrome Extensions\\\\subtitle-tuner-Final\\\\Coursera Subtitle Tuner\\\\test-multiline.html\")"
+    ]
+  }
+}

@@ -1,0 +1,298 @@
+/* === 字幕核心样式 === */
+:root {
+  --st-font-size: 22px;
+  --st-line-height: 1.35;
+  --st-color: #ffffff;
+  --st-bg: rgba(0, 0, 0, 0.65);
+  --st-shadow: 0 2px 6px rgba(0,0,0,0.6);
+  --st-outline: 0px;
+  --st-outline-color: rgba(0,0,0,0.9);
+  --st-translate-y: 0vh; 
+  --st-bottom-rest: 20px;
+  --st-bottom-hover: 70px;
+}
+
+/* 匹配 Coursera 及通用字幕容器 - 统一背景方案 */
+.st-subtitle-target,
+[class*="subtitle"],
+[class*="captions"],
+[class*="Caption"],
+[class*="caption"],
+.vjs-text-track-display {
+  font-size: var(--st-font-size) !important;
+  line-height: var(--st-line-height) !important;
+  color: var(--st-color) !important;
+  text-shadow:
+    var(--st-shadow),
+    calc(-1 * var(--st-outline)) 0 var(--st-outline-color),
+    var(--st-outline) 0 var(--st-outline-color),
+    0 calc(-1 * var(--st-outline)) var(--st-outline-color),
+    0 var(--st-outline) var(--st-outline-color) !important;
+
+  transform: translateY(var(--st-translate-y)) !important;
+  transition: transform 0.1s linear, font-size 0.1s, line-height 0.1s !important;
+
+  /* 关键：使用相对定位 */
+  position: relative !important;
+  display: inline-block !important;
+  padding: 0 !important;
+  max-width: 90% !important;
+  margin: 0 !important;
+  background: transparent !important;
+}
+
+/* 彻底禁用所有字幕相关元素的伪元素和背景 */
+.st-subtitle-target::before,
+.st-subtitle-target::after,
+[class*="subtitle"]::before,
+[class*="subtitle"]::after,
+[class*="caption"]::before,
+[class*="caption"]::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+}
+
+/* 移除所有子元素的伪元素、margin、padding和背景 */
+.st-subtitle-target *,
+.st-subtitle-target *::before,
+.st-subtitle-target *::after,
+[class*="subtitle"] *,
+[class*="subtitle"] *::before,
+[class*="subtitle"] *::after,
+[class*="caption"] *,
+[class*="caption"] *::before,
+[class*="caption"] *::after {
+  content: none !important;
+  display: inline !important;
+  line-height: var(--st-line-height) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: none !important;
+  background-color: transparent !important;
+}
+
+/* 多行字幕包裹容器样式 - 由JS动态添加 - 超高优先级 */
+.st-multiline-wrapper,
+div.st-multiline-wrapper,
+[class*="subtitle"] .st-multiline-wrapper,
+[class*="caption"] .st-multiline-wrapper {
+  position: relative !important;
+  display: inline-block !important;
+  padding: 0.2em 0.5em !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  max-width: 90% !important;
+  margin: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* 多行字幕的背景层 - 由JS动态添加 - 超高优先级 */
+.st-bg-layer,
+div.st-bg-layer,
+.st-multiline-wrapper .st-bg-layer,
+[class*="subtitle"] .st-bg-layer,
+[class*="caption"] .st-bg-layer {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 0.3em !important;
+  z-index: -1 !important;
+  pointer-events: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* 多行字幕的每一行 - 超高优先级 */
+.st-multiline-wrapper > *:not(.st-bg-layer),
+.st-multiline-wrapper > div:not(.st-bg-layer),
+.st-multiline-wrapper > span:not(.st-bg-layer),
+.st-multiline-wrapper > p:not(.st-bg-layer) {
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  line-height: var(--st-line-height) !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* 彻底禁用多行字幕内部元素的伪元素 */
+.st-multiline-wrapper > *:not(.st-bg-layer)::before,
+.st-multiline-wrapper > *:not(.st-bg-layer)::after,
+.st-multiline-wrapper > * > *::before,
+.st-multiline-wrapper > * > *::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+}
+
+.st-player-root .st-subtitle-target,
+.st-player-root [class*="subtitle"],
+.st-player-root [class*="caption"],
+.st-player-root [class*="captions"],
+.st-player-root .vjs-text-track-display {
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  text-align: center !important;
+  pointer-events: none !important;
+  z-index: 999999 !important;
+  margin: 0 !important;
+}
+
+.st-player-root .st-cue-layer {
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  text-align: center !important;
+  pointer-events: none !important;
+  z-index: 999999 !important;
+  margin: 0 !important;
+  font-size: var(--st-font-size) !important;
+  line-height: var(--st-line-height) !important;
+  color: var(--st-color) !important;
+  text-shadow:
+    var(--st-shadow),
+    calc(-1 * var(--st-outline)) 0 var(--st-outline-color),
+    var(--st-outline) 0 var(--st-outline-color),
+    0 calc(-1 * var(--st-outline)) var(--st-outline-color),
+    0 var(--st-outline) var(--st-outline-color) !important;
+  transform: translateY(var(--st-translate-y)) !important;
+  display: none;
+}
+
+.st-player-root .st-cue-text {
+  display: block !important;
+  white-space: pre-line !important;
+  background: transparent !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.st-player-root.st-pos-bottom .st-subtitle-target, .st-player-root.st-pos-bottom [class*="subtitle"] { 
+  bottom: var(--st-bottom-rest) !important; top: auto !important;
+}
+.st-player-root.st-pos-top .st-subtitle-target, .st-player-root.st-pos-top [class*="subtitle"] { 
+  top: 60px !important; bottom: auto !important;
+}
+
+.st-player-root.st-pos-bottom .st-cue-layer { 
+  bottom: var(--st-bottom-rest) !important; top: auto !important;
+}
+.st-player-root.st-pos-top .st-cue-layer { 
+  top: 60px !important; bottom: auto !important;
+}
+
+.st-player-root.st-pos-bottom.st-hover-controls .st-subtitle-target,
+.st-player-root.st-pos-bottom.st-hover-controls [class*="subtitle"],
+.st-player-root.st-pos-bottom.st-hover-controls .st-cue-layer {
+  bottom: var(--st-bottom-hover) !important;
+}
+
+video::cue {
+  color: var(--st-color) !important;
+  background: var(--st-bg) !important;
+  font-size: var(--st-font-size) !important;
+  line-height: var(--st-line-height) !important; 
+}
+
+.st-custom-cues video::cue {
+  color: transparent !important;
+  background: transparent !important;
+  text-shadow: none !important;
+}
+
+/* === 按钮样式 === */
+.st-cc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  
+  height: 100%;
+  min-height: 24px; 
+  padding: 0 8px;
+  margin: 0 0 0 10px; 
+  
+  background: transparent;
+  border: none;
+  color: #ffffff !important; 
+  opacity: 0.85; 
+  
+  transition: all 0.2s;
+  white-space: nowrap;
+  position: relative; 
+  z-index: 1000;
+}
+
+.st-cc-btn:hover {
+  opacity: 1 !important;
+  text-shadow: 0 0 10px rgba(255,255,255,0.6);
+}
+
+/* === 撑开父容器 === */
+:has(> .st-cc-btn) {
+  width: auto !important;
+  max-width: none !important;
+  flex-basis: auto !important;
+  flex-grow: 0 !important; 
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+}
+
+/* 兜底悬浮样式 */
+.st-cc-floating-container {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  z-index: 2147483647;
+}
+.st-cc-btn.st-floating {
+  background: rgba(0,0,0,0.8);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid #666;
+  border-radius: 8px;
+  color: #fff !important;
+  opacity: 1;
+  margin: 0;
+}
+
+/* === 设置面板 (定位由 JS 控制) === */
+.st-panel {
+  position: fixed; 
+  /* right/bottom 被移除，改用 top/left */
+  width: 260px; 
+  padding: 16px;
+  background: rgba(26, 26, 26, 0.95); 
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px); 
+  border-radius: 12px; 
+  color: #eee;
+  font-family: system-ui, -apple-system, sans-serif;
+  z-index: 2147483647; 
+  box-shadow: 0 12px 40px rgba(0,0,0,0.7);
+  display: none;
+}
+.st-panel.st-open { display: block; }
+.st-row { margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; }
+.st-row label { font-size: 12px; opacity: 0.8; margin-right: 12px; min-width: 60px; }
+.st-row input[type="range"] { flex: 1; height: 4px; cursor: pointer; accent-color: #2196F3; }
+.st-row select { background: #333; color: #fff; border: 1px solid #555; border-radius: 4px; padding: 2px 6px; font-size: 12px; }
+.st-row input[type="color"] { width: 30px; height: 20px; border: none; background: transparent; }
+.st-btns { display: flex; gap: 10px; margin-top: 18px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1); }
+.st-btn { flex: 1; padding: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: #fff; border-radius: 6px; cursor: pointer; font-size: 12px; }
+.st-btn:hover { background: rgba(255,255,255,0.15); }

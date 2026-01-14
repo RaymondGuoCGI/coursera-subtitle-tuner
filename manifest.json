@@ -1,0 +1,29 @@
+﻿{
+  "manifest_version": 3,
+  "name": "Coursera Subtitle Tuner",
+  "version": "0.3.9",
+  "description": "Adjust subtitles (position, size, colors, opacity) on Coursera and other sites.",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://*.coursera.org/*",
+    "https://*.deeplearning.ai/*" 
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.coursera.org/*",
+        "https://*.deeplearning.ai/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "styles.css"
+      ],
+      "run_at": "document_end",
+      "all_frames": true
+    }
+  ]
+}
