@@ -405,7 +405,7 @@ function getControlsElements(playerRoot) {
     "[class*=\"Scrubber\" i]",
     "[class*=\"ControlBar\" i]",
     "[class*=\"VideoControls\" i]",
-    "[data-test*=\"controls\" i]",,
+    "[data-test*=\"controls\" i]",
     "[data-testid*=\"controls\" i]",
     "[data-testid*=\"progress\" i]",
     ".video-controls",
@@ -469,18 +469,41 @@ function ensureCueLayer(playerRoot) {
   return { layer, wrapper, bg, text };
 }
 
+function getCaptionRoot(playerRoot, video) {
+  const fsEl = document.fullscreenElement;
+  if (!fsEl) return playerRoot;
+  if (video && fsEl === video) return null; // can't append overlays to <video>
+  if (video && fsEl.contains(video)) return fsEl;
+  if (playerRoot && fsEl.contains(playerRoot)) return fsEl;
+  return playerRoot;
+}
+
 function updateCustomCues(video, playerRoot) {
   if (!video || !playerRoot) return;
   const tracks = Array.from(video.textTracks || []);
   const showingTracks = tracks.filter(t => t.mode === "showing");
 
   if (!showingTracks.length) {
-    playerRoot.classList.remove("st-custom-cues");
-    const layer = playerRoot.querySelector(".st-cue-layer");
-    if (layer) layer.style.display = "none";
+    const roots = new Set([playerRoot, document.fullscreenElement].filter(Boolean));
+    roots.forEach((root) => {
+      root.classList.remove("st-custom-cues");
+      const layer = root.querySelector(".st-cue-layer");
+      if (layer) layer.style.display = "none";
+    });
     return;
   }
-  playerRoot.classList.add("st-custom-cues");
+
+  const captionRoot = getCaptionRoot(playerRoot, video);
+  if (!captionRoot) {
+    // Fullscreen element is <video>; fallback to native cues
+    const roots = new Set([playerRoot, document.fullscreenElement].filter(Boolean));
+    roots.forEach((root) => {
+      root.classList.remove("st-custom-cues");
+      const layer = root.querySelector(".st-cue-layer");
+      if (layer) layer.style.display = "none";
+    });
+    return;
+  }
 
   const texts = [];
   showingTracks.forEach(track => {
@@ -491,12 +514,27 @@ function updateCustomCues(video, playerRoot) {
   });
 
   const text = texts.join("\n").trim();
-  const { layer, wrapper, text: textEl } = ensureCueLayer(playerRoot);
-
   if (!text) {
-    layer.style.display = "none";
+    // Keep native captions if we can't render custom cues
+    const roots = new Set([playerRoot, document.fullscreenElement].filter(Boolean));
+    roots.forEach((root) => {
+      root.classList.remove("st-custom-cues");
+      const layer = root.querySelector(".st-cue-layer");
+      if (layer) layer.style.display = "none";
+    });
     return;
   }
+  const roots = new Set([playerRoot, document.fullscreenElement].filter(Boolean));
+  roots.forEach((root) => {
+    root.classList.remove("st-custom-cues");
+    if (root !== captionRoot) {
+      const layer = root.querySelector(".st-cue-layer");
+      if (layer) layer.style.display = "none";
+    }
+  });
+
+  captionRoot.classList.add("st-custom-cues");
+  const { layer, wrapper, text: textEl } = ensureCueLayer(captionRoot);
 
   textEl.textContent = "";
   const lines = text.split(/\r?\n/).filter(line => line.trim().length > 0);
@@ -564,6 +602,17 @@ function findInsertionTarget(playerRoot) {
      if (container && container.tagName === 'SPAN') container = container.parentNode;
      return { type: 'appendChild', parent: container };
   }
+  const controlBars = getControlsElements(playerRoot).filter((el) => {
+    const cs = window.getComputedStyle(el);
+    if (cs.display === "none" || cs.visibility === "hidden") return false;
+    if (el.querySelector("video")) return false;
+    const hasButton = el.querySelector("button, [role=\"button\"]");
+    const isProgress = /progress|scrubber|seek|timeline/i.test(el.className || "");
+    return !!hasButton && !isProgress;
+  });
+  if (controlBars.length) {
+    return { type: "appendChild", parent: controlBars[controlBars.length - 1] };
+  }
   return null;
 }
 
@@ -610,6 +659,32 @@ async function boot() {
           repositionPanel(btn);
       }
   });
+
+  // === 修复空格键功能 ===
+  window.addEventListener("keydown", (e) => {
+    if (e.code === "Space" || e.key === " ") {
+      const activeEl = document.activeElement;
+      const isInput = activeEl && (
+        activeEl.tagName === "INPUT" || 
+        activeEl.tagName === "TEXTAREA" || 
+        activeEl.isContentEditable
+      );
+      if (isInput) return;
+
+      const playerRoot = findPlayerRoot();
+      const video = playerRoot ? playerRoot.querySelector("video") : document.querySelector("video");
+
+      if (video) {
+        e.preventDefault(); // 阻止页面滚动
+        e.stopPropagation(); // 阻止其他事件处理
+        if (video.paused) {
+          video.play();
+        } else {
+          video.pause();
+        }
+      }
+    }
+  }, true);
   
   // === 核心修改：使用 Capture 阶段监听点击 ===
   // 这里的 'true' 参数确保我们在事件被其他按钮拦截前就能捕获它
@@ -622,6 +697,15 @@ async function boot() {
     }
   }, true);
 
+  document.addEventListener("fullscreenchange", () => {
+    const playerRoot = findPlayerRoot();
+    if (!playerRoot) return;
+    const video = playerRoot.querySelector("video") || document.querySelector("video");
+    updateCustomCues(video, playerRoot);
+    const captionRoot = getCaptionRoot(playerRoot, video) || playerRoot;
+    applyState(currentState, captionRoot);
+  });
+
   const mount = () => {
     const playerRoot = findPlayerRoot();
     if (!playerRoot) return;
@@ -629,23 +713,69 @@ async function boot() {
     if (!playerRoot.__stHoverBound) {
       playerRoot.__stHoverBound = true;
       playerRoot.classList.add("st-force-controls");
-      const hoveringNow = playerRoot.matches(":hover");
-      playerRoot.classList.toggle("st-hover-controls", hoveringNow);
-      playerRoot.classList.toggle("st-controls-visible", hoveringNow);
-      playerRoot.classList.toggle("st-controls-hidden", !hoveringNow);
-      forceControlsVisibility(playerRoot, hoveringNow);
-      playerRoot.addEventListener("mouseenter", () => {
+
+      let hideTimer = null;
+      let policeInterval = null;
+
+      const enforce = () => {
+        if (!document.body.contains(playerRoot)) {
+          if (policeInterval) { clearInterval(policeInterval); policeInterval = null; }
+          return;
+        }
+        forceControlsVisibility(playerRoot, true);
+        // 发送虚拟事件以保持原生播放器控制条显示，防止其提前或延迟隐藏
+        playerRoot.dispatchEvent(new MouseEvent('mousemove', {
+          bubbles: true,
+          cancelable: true,
+          view: window,
+          clientX: 0,
+          clientY: 0
+        }));
+      };
+
+      const hideControls = () => {
+        if (hideTimer) clearTimeout(hideTimer);
+        if (policeInterval) { clearInterval(policeInterval); policeInterval = null; }
+        
+        playerRoot.classList.remove("st-hover-controls");
+        playerRoot.classList.remove("st-controls-visible");
+        playerRoot.classList.add("st-controls-hidden");
+        forceControlsVisibility(playerRoot, false);
+      };
+
+      const showControls = (e) => {
+        // 忽略由我们自己发出的虚拟事件，避免死循环
+        if (e && e.isTrusted === false) return;
+
+        if (hideTimer) clearTimeout(hideTimer);
+        
+        // Ensure visual state matches "Showing"
         playerRoot.classList.add("st-hover-controls");
         playerRoot.classList.add("st-controls-visible");
         playerRoot.classList.remove("st-controls-hidden");
+        
+        // Force immediately and start policing to fight native auto-hide
         forceControlsVisibility(playerRoot, true);
-      });
-      playerRoot.addEventListener("mouseleave", () => {
-        playerRoot.classList.remove("st-hover-controls");
-        playerRoot.classList.add("st-controls-hidden");
-        playerRoot.classList.remove("st-controls-visible");
-        forceControlsVisibility(playerRoot, false);
-      });
+        if (!policeInterval) {
+          policeInterval = setInterval(enforce, 250);
+        }
+        
+        hideTimer = setTimeout(hideControls, 5000);
+      };
+
+      if (playerRoot.matches(":hover")) {
+        showControls();
+      } else {
+        hideControls();
+      }
+
+      playerRoot.addEventListener("mousemove", showControls);
+      playerRoot.addEventListener("mouseleave", hideControls);
+      
+      if (video) {
+        video.addEventListener("pause", showControls);
+        video.addEventListener("play", showControls);
+      }
     }
 
     const insertion = findInsertionTarget(playerRoot);
@@ -658,13 +788,16 @@ async function boot() {
         btn.classList.remove("st-floating");
         const parent = insertion.parent;
         const cs = window.getComputedStyle(parent);
-        if (cs.display !== "flex" && cs.display !== "inline-flex") {
-            parent.style.display = "flex";
-            parent.style.alignItems = "center";
-            parent.style.justifyContent = "flex-end";
+        const childCount = parent.children ? parent.children.length : 0;
+        if (childCount <= 2 && cs.display !== "flex" && cs.display !== "inline-flex") {
+          parent.style.display = "flex";
+          parent.style.alignItems = "center";
+          parent.style.justifyContent = "flex-end";
         }
-        parent.style.width = "auto";
-        parent.style.maxWidth = "none";
+        if (childCount <= 2) {
+          parent.style.width = "auto";
+          parent.style.maxWidth = "none";
+        }
       } catch (e) { console.error(e); }
     } else if (!isInDom) {
       let floatContainer = document.getElementById("st-float-container");
@@ -681,7 +814,8 @@ async function boot() {
     markSubtitleTargets(playerRoot);
     wrapMultilineSubtitles(playerRoot);
     attachCustomCueHandlers(video, playerRoot);
-    applyState(currentState, playerRoot);
+    const captionRoot = getCaptionRoot(playerRoot, video) || playerRoot;
+    applyState(currentState, captionRoot);
   };
 
   setInterval(mount, 1000); 
