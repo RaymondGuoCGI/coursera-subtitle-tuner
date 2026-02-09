@@ -6,3 +6,6 @@ CWS_API_UPLOAD_NOTES.md
 reference*.png
 cws.png
 github.png
+
+# Use global OpenCode config only
+.opencode/
