@@ -1,2 +1,8 @@
 *.zip
 CWS_API_UPLOAD_NOTES.md
+
+# Local screenshots / references (non-plugin runtime assets)
+[0-9][0-9][0-9].png
+reference*.png
+cws.png
+github.png
