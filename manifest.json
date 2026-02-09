@@ -20,13 +20,19 @@
   ],
   "host_permissions": [
     "https://*.coursera.org/*",
-    "https://*.deeplearning.ai/*" 
+    "https://*.deeplearning.ai/*",
+    "https://player.vimeo.com/*",
+    "https://*.wistia.com/*",
+    "https://fast.wistia.net/*"
   ],
   "content_scripts": [
     {
       "matches": [
         "https://*.coursera.org/*",
-        "https://*.deeplearning.ai/*"
+        "https://*.deeplearning.ai/*",
+        "https://player.vimeo.com/*",
+        "https://*.wistia.com/*",
+        "https://fast.wistia.net/*"
       ],
       "js": [
         "content.js"

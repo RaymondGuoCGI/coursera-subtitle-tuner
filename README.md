@@ -43,3 +43,29 @@ Notes:
 
 Privacy policy:
 See `PRIVACY.md`.
+
+## Release automation / 发布自动化
+
+- Skill path: `.opencode/skills/chrome-extension-release/SKILL.md`
+- Command: `.opencode/commands/release-extension.md` (run with `/release-extension` in OpenCode)
+- Script: `scripts/release-extension.ps1`
+
+Examples:
+
+```powershell
+# 1) Package only
+powershell -ExecutionPolicy Bypass -File scripts/release-extension.ps1
+
+# 2) Package + publish to Chrome Web Store
+powershell -ExecutionPolicy Bypass -File scripts/release-extension.ps1 -PublishCws
+
+# 3) Package + publish + sync current branch to GitHub
+powershell -ExecutionPolicy Bypass -File scripts/release-extension.ps1 -PublishCws -SyncGitHub
+```
+
+Required environment variables for CWS publish:
+
+- `CWS_CLIENT_ID`
+- `CWS_CLIENT_SECRET`
+- `CWS_REFRESH_TOKEN`
+- `CWS_EXTENSION_ID`

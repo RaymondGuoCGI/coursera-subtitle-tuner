@@ -8,17 +8,18 @@
   --st-outline: 0px;
   --st-outline-color: rgba(0,0,0,0.9);
   --st-translate-y: 0vh; 
-  --st-bottom-rest: 20px;
-  --st-bottom-hover: 70px;
+  --st-bottom-rest: 10px;
+  --st-bottom-hover: 75px;
 }
 
 /* 匹配 Coursera 及通用字幕容器 - 统一背景方案 */
-.st-subtitle-target,
-[class*="subtitle"],
-[class*="captions"],
-[class*="Caption"],
-[class*="caption"],
-.vjs-text-track-display {
+/* 排除 vjs 控制栏按钮，避免干扰原生 CC 按钮 */
+:root:not(.st-context-deeplearning) .st-subtitle-target,
+:root:not(.st-context-deeplearning) [class*="subtitle"]:not(.vjs-subtitles-button):not([class*="vjs-"]),
+:root:not(.st-context-deeplearning) [class*="captions"]:not(.vjs-captions-button):not([class*="vjs-"]),
+:root:not(.st-context-deeplearning) [class*="Caption"]:not([class*="vjs-"]),
+:root:not(.st-context-deeplearning) [class*="caption"]:not(.vjs-captions-button):not([class*="vjs-"]),
+:root:not(.st-context-deeplearning) .vjs-text-track-display {
   font-size: var(--st-font-size) !important;
   line-height: var(--st-line-height) !important;
   color: var(--st-color) !important;
@@ -30,7 +31,7 @@
     0 var(--st-outline) var(--st-outline-color) !important;
 
   transform: translateY(var(--st-translate-y)) !important;
-  transition: transform 0.1s linear, font-size 0.1s, line-height 0.1s !important;
+  transition: transform 0.1s linear, font-size 0.1s, line-height 0.1s, bottom 0.25s ease-out !important;
 
   /* 关键：使用相对定位 */
   position: relative !important;
@@ -41,126 +42,10 @@
   background: transparent !important;
 }
 
-/* 彻底禁用所有字幕相关元素的伪元素和背景 */
-.st-subtitle-target::before,
-.st-subtitle-target::after,
-[class*="subtitle"]::before,
-[class*="subtitle"]::after,
-[class*="caption"]::before,
-[class*="caption"]::after {
-  content: none !important;
-  display: none !important;
-  background: none !important;
-}
+/* ... existing code ... */
 
-/* 移除所有子元素的伪元素、margin、padding和背景 */
-.st-subtitle-target *,
-.st-subtitle-target *::before,
-.st-subtitle-target *::after,
-[class*="subtitle"] *,
-[class*="subtitle"] *::before,
-[class*="subtitle"] *::after,
-[class*="caption"] *,
-[class*="caption"] *::before,
-[class*="caption"] *::after {
-  content: none !important;
-  display: inline !important;
-  line-height: var(--st-line-height) !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  background: none !important;
-  background-color: transparent !important;
-}
-
-/* 多行字幕包裹容器样式 - 由JS动态添加 - 超高优先级 */
-.st-multiline-wrapper,
-div.st-multiline-wrapper,
-[class*="subtitle"] .st-multiline-wrapper,
-[class*="caption"] .st-multiline-wrapper {
-  position: relative !important;
-  display: inline-block !important;
-  padding: 0.1em 0.5em !important;
-  background: transparent !important;
-  background-color: transparent !important;
-  max-width: 90% !important;
-  margin: 0 !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-
-/* 多行字幕的背景层 - 由JS动态添加 - 超高优先级 */
-.st-bg-layer,
-div.st-bg-layer,
-.st-multiline-wrapper .st-bg-layer,
-[class*="subtitle"] .st-bg-layer,
-[class*="caption"] .st-bg-layer {
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  border-radius: 0.3em !important;
-  z-index: -1 !important;
-  pointer-events: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-.st-bg-layer .st-bg-svg {
-  display: block !important;
-  width: 100% !important;
-  height: 100% !important;
-}
-
-.st-bg-layer .st-bg-svg .st-bg-fill {
-  fill: var(--st-bg) !important;
-}
-
-/* 多行字幕的每一行 - 超高优先级 */
-.st-multiline-wrapper > *:not(.st-bg-layer),
-.st-multiline-wrapper > div:not(.st-bg-layer),
-.st-multiline-wrapper > span:not(.st-bg-layer),
-.st-multiline-wrapper > p:not(.st-bg-layer) {
-  display: block !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  background: transparent !important;
-  background-color: transparent !important;
-  line-height: var(--st-line-height) !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-
-.st-cue-text {
-  display: block !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-.st-cue-line {
-  display: block !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  background: transparent !important;
-}
-
-/* 彻底禁用多行字幕内部元素的伪元素 */
-.st-multiline-wrapper > *:not(.st-bg-layer)::before,
-.st-multiline-wrapper > *:not(.st-bg-layer)::after,
-.st-multiline-wrapper > * > *::before,
-.st-multiline-wrapper > * > *::after {
-  content: none !important;
-  display: none !important;
-  background: none !important;
-}
-
-.st-player-root .st-subtitle-target,
-.st-player-root [class*="subtitle"],
-.st-player-root [class*="caption"],
-.st-player-root [class*="captions"],
-.st-player-root .vjs-text-track-display {
+:root:not(.st-context-deeplearning) .st-player-root .st-subtitle-target,
+:root:not(.st-context-deeplearning) .st-player-root .vjs-text-track-display {
   position: absolute !important;
   left: 0 !important;
   right: 0 !important;
@@ -168,6 +53,7 @@ div.st-bg-layer,
   pointer-events: none !important;
   z-index: 999999 !important;
   margin: 0 !important;
+  padding: 0 !important;
 }
 
 .st-player-root .st-cue-layer {
@@ -178,6 +64,7 @@ div.st-bg-layer,
   pointer-events: none !important;
   z-index: 999999 !important;
   margin: 0 !important;
+  padding: 0 !important;
   font-size: var(--st-font-size) !important;
   line-height: var(--st-line-height) !important;
   color: var(--st-color) !important;
@@ -188,6 +75,7 @@ div.st-bg-layer,
     0 calc(-1 * var(--st-outline)) var(--st-outline-color),
     0 var(--st-outline) var(--st-outline-color) !important;
   transform: translateY(var(--st-translate-y)) !important;
+  transition: bottom 0.25s ease-out !important;
   display: none;
 }
 
@@ -198,23 +86,23 @@ div.st-bg-layer,
   margin: 0 !important;
   padding: 0 !important;
 }
-
-.st-player-root.st-pos-bottom .st-subtitle-target, .st-player-root.st-pos-bottom [class*="subtitle"] { 
-  bottom: var(--st-bottom-rest) !important; top: auto !important;
-}
-.st-player-root.st-pos-top .st-subtitle-target, .st-player-root.st-pos-top [class*="subtitle"] { 
-  top: 60px !important; bottom: auto !important;
+.st-bg-layer .st-bg-fill {
+  fill: var(--st-bg) !important;
 }
 
+.st-player-root.st-pos-bottom .st-subtitle-target, 
 .st-player-root.st-pos-bottom .st-cue-layer { 
   bottom: var(--st-bottom-rest) !important; top: auto !important;
 }
+.st-player-root.st-pos-top .st-subtitle-target, 
 .st-player-root.st-pos-top .st-cue-layer { 
   top: 60px !important; bottom: auto !important;
 }
 
+/* 当控制条可见时（不论是 hover 还是强制显示），提升字幕高度 */
+.st-player-root.st-pos-bottom.st-controls-visible .st-subtitle-target,
+.st-player-root.st-pos-bottom.st-controls-visible .st-cue-layer,
 .st-player-root.st-pos-bottom.st-hover-controls .st-subtitle-target,
-.st-player-root.st-pos-bottom.st-hover-controls [class*="subtitle"],
 .st-player-root.st-pos-bottom.st-hover-controls .st-cue-layer {
   bottom: var(--st-bottom-hover) !important;
 }
@@ -314,17 +202,6 @@ video::cue {
   text-shadow: 0 0 10px rgba(255,255,255,0.6);
 }
 
-/* === 撑开父容器 === */
-:has(> .st-cc-btn) {
-  width: auto !important;
-  max-width: none !important;
-  flex-basis: auto !important;
-  flex-grow: 0 !important; 
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-}
-
 /* 兜底悬浮样式 */
 .st-cc-floating-container {
   position: fixed;
@@ -342,6 +219,235 @@ video::cue {
   color: #fff !important;
   opacity: 1;
   margin: 0;
+}
+
+/* === DeepLearning.ai vjs 控制栏专用样式 === */
+.st-context-deeplearning .vjs-control-bar .st-cc-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  padding: 0 0.6em !important;
+  margin: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  color: #ffffff !important;
+  font-size: 1em !important;
+  font-weight: 700 !important;
+  opacity: 0.85 !important;
+  cursor: pointer !important;
+  vertical-align: middle !important;
+  line-height: 1 !important;
+  position: static !important;
+  top: auto !important;
+  bottom: auto !important;
+}
+
+.st-context-deeplearning .vjs-control-bar .st-cc-btn:hover {
+  opacity: 1 !important;
+  text-shadow: 0 0 10px rgba(255,255,255,0.6) !important;
+}
+
+/* Deeplearning: always prefer native captions rendering */
+.st-context-deeplearning video::cue {
+  color: var(--st-color) !important;
+  background: var(--st-bg) !important;
+  font-size: var(--st-font-size) !important;
+  line-height: var(--st-line-height) !important;
+  text-shadow: none !important;
+}
+
+.st-context-deeplearning .st-custom-cues video::cue {
+  color: transparent !important;
+  background: transparent !important;
+  text-shadow: none !important;
+}
+
+/* DeepLearning.AI: body-level overlay captions to bypass player stacking */
+.st-dl-overlay-layer {
+  position: fixed !important;
+  left: 0 !important;
+  top: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  z-index: 2147483647 !important;
+  pointer-events: none !important;
+  display: none;
+  flex-direction: column !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  padding-bottom: var(--st-bottom-rest) !important;
+}
+
+.st-dl-overlay-layer.st-pos-top {
+  justify-content: flex-start !important;
+  padding-top: 60px !important;
+  padding-bottom: 0 !important;
+}
+
+.st-dl-overlay-layer.st-pos-bottom.st-controls-visible {
+  padding-bottom: var(--st-bottom-hover) !important;
+}
+
+.st-dl-overlay-layer .st-dl-overlay-line {
+  font-size: var(--st-font-size) !important;
+  line-height: var(--st-line-height) !important;
+  color: var(--st-color) !important;
+  background: var(--st-bg) !important;
+  text-shadow:
+    var(--st-shadow),
+    calc(-1 * var(--st-outline)) 0 var(--st-outline-color),
+    var(--st-outline) 0 var(--st-outline-color),
+    0 calc(-1 * var(--st-outline)) var(--st-outline-color),
+    0 var(--st-outline) var(--st-outline-color) !important;
+  transform: translateY(var(--st-translate-y)) !important;
+  transition: transform 0.1s linear, font-size 0.1s, line-height 0.1s !important;
+  display: inline-block !important;
+  padding: 0.2em 0.5em !important;
+  border-radius: 0.2em !important;
+  margin: 0 !important;
+  max-width: 90% !important;
+  text-align: center !important;
+}
+
+.st-dl-overlay-layer .st-dl-overlay-line-fit {
+  white-space: nowrap !important;
+  width: fit-content !important;
+}
+
+.st-dl-overlay-layer .st-dl-overlay-line-uniform {
+  white-space: pre-line !important;
+}
+
+/* DeepLearning.AI: hide native captions when overlay is active (avoid duplicate subtitles) */
+.st-context-deeplearning .st-player-root.st-dl-overlay-active .vds-captions,
+.st-context-deeplearning .st-player-root.st-dl-overlay-active .vjs-text-track-display {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* DeepLearning.AI: captions container keeps full player area, no Y transform */
+.st-context-deeplearning .st-player-root .vds-captions,
+.st-context-deeplearning .vds-captions,
+.st-context-deeplearning .st-player-root .vjs-text-track-display,
+.st-context-deeplearning .vjs-text-track-display {
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  overflow: visible !important;
+  text-align: center !important;
+  pointer-events: none !important;
+  z-index: 2147483647 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  padding-bottom: var(--st-bottom-rest) !important;
+  transform: translateZ(0) !important;
+}
+
+/* DeepLearning.AI: force stacking context so captions can stay above video */
+.st-context-deeplearning .st-player-root,
+.st-context-deeplearning .vds-player,
+.st-context-deeplearning media-provider,
+.st-context-deeplearning [data-media-player],
+.st-context-deeplearning [data-media-provider] {
+  position: relative !important;
+  isolation: isolate !important;
+}
+
+/* DeepLearning.AI: keep video below captions */
+.st-context-deeplearning .st-player-root video,
+.st-context-deeplearning .vds-player video,
+.st-context-deeplearning media-provider video,
+.st-context-deeplearning [data-media-provider] video,
+.st-context-deeplearning [data-media-player] video {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* DeepLearning.AI: captions layer always above video layer */
+.st-context-deeplearning .st-player-root .vds-captions,
+.st-context-deeplearning .vds-captions,
+.st-context-deeplearning .st-player-root .vjs-text-track-display,
+.st-context-deeplearning .vjs-text-track-display {
+  z-index: 2147483647 !important;
+}
+
+/* DeepLearning.AI: top docking */
+.st-context-deeplearning .st-player-root.st-pos-top .vds-captions,
+.st-context-deeplearning .st-player-root.st-pos-top .vjs-text-track-display {
+  justify-content: flex-start !important;
+  padding-top: 60px !important;
+  padding-bottom: 0 !important;
+}
+
+/* DeepLearning.AI: hover controls spacing */
+.st-context-deeplearning .st-player-root.st-pos-bottom.st-controls-visible .vds-captions,
+.st-context-deeplearning .st-player-root.st-pos-bottom.st-hover-controls .vds-captions,
+.st-context-deeplearning .st-player-root.st-pos-bottom.st-controls-visible .vjs-text-track-display,
+.st-context-deeplearning .st-player-root.st-pos-bottom.st-hover-controls .vjs-text-track-display {
+  padding-bottom: var(--st-bottom-hover) !important;
+}
+
+/* DeepLearning.AI: text node styling + V-Offset on cue itself */
+.st-context-deeplearning .st-player-root .vds-captions .vds-cue,
+.st-context-deeplearning .vds-captions .vds-cue,
+.st-context-deeplearning .st-player-root .vds-captions [data-part="cue"],
+.st-context-deeplearning .vds-captions [data-part="cue"],
+.st-context-deeplearning .st-player-root .vjs-text-track-display .vjs-text-track-cue,
+.st-context-deeplearning .vjs-text-track-display .vjs-text-track-cue,
+.st-context-deeplearning .st-player-root .vjs-text-track-display > div,
+.st-context-deeplearning .vjs-text-track-display > div {
+  font-size: var(--st-font-size) !important;
+  line-height: var(--st-line-height) !important;
+  color: var(--st-color) !important;
+  background: var(--st-bg) !important;
+  text-shadow:
+    var(--st-shadow),
+    calc(-1 * var(--st-outline)) 0 var(--st-outline-color),
+    var(--st-outline) 0 var(--st-outline-color),
+    0 calc(-1 * var(--st-outline)) var(--st-outline-color),
+    0 var(--st-outline) var(--st-outline-color) !important;
+  transform: translateY(var(--st-translate-y)) !important;
+  transition: transform 0.1s linear, font-size 0.1s, line-height 0.1s !important;
+  display: inline-block !important;
+  padding: 0.2em 0.5em !important;
+  border-radius: 0.2em !important;
+  max-width: 90% !important;
+  position: relative !important;
+  z-index: 2147483647 !important;
+}
+
+/* DeepLearning.AI: likely foreground layers below captions */
+.st-context-deeplearning .vds-scrim,
+.st-context-deeplearning [class*="scrim" i],
+.st-context-deeplearning [class*="gradient" i] {
+  z-index: 1000 !important;
+}
+
+.st-context-deeplearning .st-deeplearning-player {
+  position: relative !important;
+}
+
+.st-context-deeplearning .st-cc-btn.st-deeplearning-floating {
+  position: absolute !important;
+  right: 16px !important;
+  bottom: 16px !important;
+  z-index: 1002 !important;
+  height: 32px !important;
+  min-height: 32px !important;
+  padding: 0 10px !important;
+  margin: 0 !important;
+  background: rgba(0, 0, 0, 0.55) !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  border-radius: 6px !important;
+  opacity: 1 !important;
 }
 
 /* === 设置面板 (定位由 JS 控制) === */
